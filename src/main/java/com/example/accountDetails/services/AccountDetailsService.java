@@ -1,10 +1,8 @@
 package com.example.accountDetails.services;
 
-
-
-
 import com.example.accountDetails.pojo.AccountDetails;
 import com.example.accountDetails.utils.AccountDetailsRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,33 +22,39 @@ public class AccountDetailsService {
 
     // Add a new account holder
     public AccountDetails addAccountDetails(AccountDetails accountDetails) {
+        // Save the account and return the saved entity
         return accountDetailsRepository.save(accountDetails);
     }
 
     // Edit account details by ID
-    public Optional<AccountDetails> editAccountDetails(Long id, AccountDetails updatedAccountDetails) {
+    public Optional<AccountDetails> editAccountDetails(Integer id, AccountDetails updatedAccountDetails) {
+        // Retrieve the existing account
         Optional<AccountDetails> existingAccountDetailsOpt = accountDetailsRepository.findById(id);
+
         if (existingAccountDetailsOpt.isPresent()) {
             AccountDetails existingAccountDetails = existingAccountDetailsOpt.get();
+
+            // Update fields
             existingAccountDetails.setTitle(updatedAccountDetails.getTitle());
             existingAccountDetails.setFirstName(updatedAccountDetails.getFirstName());
             existingAccountDetails.setLastName(updatedAccountDetails.getLastName());
             existingAccountDetails.setDob(updatedAccountDetails.getDob());
             existingAccountDetails.setEditMode(updatedAccountDetails.isEditMode());
 
-            // Save and return the updated account
+            // Save and return the updated entity
             return Optional.of(accountDetailsRepository.save(existingAccountDetails));
+        } else {
+            throw new EntityNotFoundException("AccountDetails not found with ID: " + id);
         }
-        return Optional.empty(); // Return an empty Optional if the account doesn't exist
     }
 
     // Delete account details by ID
-    public boolean deleteAccountDetails(Long id) {
+    public boolean deleteAccountDetails(Integer id) {
         if (accountDetailsRepository.existsById(id)) {
             accountDetailsRepository.deleteById(id);
-            return true; // Return true if account was deleted
+            return true; // Return true if successfully deleted
         }
-        return false; // Return false if account was not found
+        return false; // Return false if the ID was not found
     }
 
     // Get account details by first name and last name

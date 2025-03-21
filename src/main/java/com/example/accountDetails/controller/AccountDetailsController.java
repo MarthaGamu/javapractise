@@ -1,7 +1,5 @@
 package com.example.accountDetails.controller;
 
-
-
 import com.example.accountDetails.pojo.AccountDetails;
 import com.example.accountDetails.services.AccountDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +46,7 @@ public class AccountDetailsController {
     // Edit account details by ID
     @PutMapping("/{id}")
     public ResponseEntity<AccountDetails> editAccountDetails(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @RequestBody AccountDetails updatedAccountDetails) {
 
         Optional<AccountDetails> updatedAccountOpt = accountDetailsService.editAccountDetails(id, updatedAccountDetails);
@@ -59,10 +57,12 @@ public class AccountDetailsController {
 
     // Delete account details by ID
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAccountDetails(@PathVariable Long id) {
+    public ResponseEntity<?> deleteAccount(@PathVariable Integer id) {
         boolean isDeleted = accountDetailsService.deleteAccountDetails(id);
-        return isDeleted
-                ? new ResponseEntity<>(HttpStatus.NO_CONTENT) // Successfully deleted
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND); // Not found
+        if (isDeleted) {
+            return ResponseEntity.ok("Account deleted successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Account not found");
+        }
     }
 }
